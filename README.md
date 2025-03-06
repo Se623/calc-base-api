@@ -52,6 +52,13 @@ Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: 
 
 Ответ: `Error: Invalid Input` (Выражение не покажется в списке)
 
+### Пример 4 (Ошибка c JSON)
+Запрос:\
+Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data '{"expression": "***5***"}'`\
+Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"***5***\"}"`\
+
+Ответ: `Error: Invalid JSON` (Выражение не покажется в списке)
+
 ## Пример просмотра выражений
 Запрос:\
 Bash(Linux): `curl --location 'localhost:8080/api/v1/expressions'`\
