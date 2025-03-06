@@ -5,7 +5,10 @@
     422 - Если выражение не соответствуют требованиям приложения (Нелегальные символы, или выражение не решаемо.)
     500 - Если в теле запроса есть ошибки (Запрос не оформлен по правилам JSON)
 
-Чтобы просмотреть выражения, которые находятся у сервера, нужно послать GET запрос на 'localhost/api/v1/expressions', сервер пришлёт список со всеми выражениями.
+Чтобы просмотреть выражения, которые находятся у сервера, нужно послать GET запрос на 'localhost/api/v1/expressions', сервер пришлёт список со всеми выражениями. Элемент этого списка - JSON с тремя полями:
++ id - id выражения, которое даётся при загрузке этого выражения в систему
++ status - статус выражения, может быть "Queued" - выражение ожидает свободного агента, "Solving" - выражение решается агентом, "Solved" - выражение решено
++ result - результат выражения, при статусах "Queued" и "Solving" - result всегда -1
 
 
 ## Запуск
@@ -60,9 +63,19 @@ Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: 
 Ответ: `Error: Invalid JSON` (Выражение не покажется в списке)
 
 ## Пример просмотра выражений
+### Запрос всех выражений
 Запрос:\
-Bash(Linux): `curl --location 'localhost:8080/api/v1/expressions'`\
-Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"2+2*2\"}"`\
+Bash(Linux)/Cmd: `curl --location localhost:8080/api/v1/expressions`
+
+Ответ: `{"expressions":[{"id":0,"status":"Queued","result":-1},{"id":1,"status":"Solved","result":6}]}` (Может быть другой ответ в зависимости от решаемых выражений)
+
+### Запрос выражения по id
+Запрос:\
+Bash(Linux)/Cmd: `curl --location localhost:8080/api/v1/expressions?id=1`
 
 Ответ: `{"expressions":[{"id":0,"status":"Queued","result":-1}]}` (Может быть другой ответ в зависимости от решаемых выражений)
+
+
+
+
 
