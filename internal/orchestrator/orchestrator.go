@@ -34,6 +34,33 @@ func Displayer(w http.ResponseWriter, r *http.Request) {
 		}
 		fmt.Fprint(w, string(exprArrPack))
 		exprs.Mux.Unlock()
+	} else {
+		var exprPack []byte
+		var err error
+		idInt, err := strconv.Atoi(id)
+		if err != nil {
+			http.Error(w, "Error: ID not found", http.StatusNotFound)
+			return
+		}
+		exprs.Mux.Lock()
+		for _, v := range exprs.Exprs {
+			if v.ID == idInt {
+				if v.Status == 0 {
+					exprPack, err = json.Marshal(lib.ExprDsp{ID: v.ID, Status: "Queued", Result: -1})
+				} else if v.Status == 1 {
+					exprPack, err = json.Marshal(lib.ExprDsp{ID: v.ID, Status: "Solving", Result: -1})
+				} else if v.Status == 2 {
+					exprPack, err = json.Marshal(lib.ExprDsp{ID: v.ID, Status: "Solved", Result: v.Ans})
+				}
+			}
+		}
+		if err != nil {
+			http.Error(w, "Error: Something invalid", http.StatusInternalServerError)
+			exprs.Mux.Unlock()
+			return
+		}
+		fmt.Fprint(w, string(exprPack))
+		exprs.Mux.Unlock()
 	}
 }
 
@@ -120,6 +147,7 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 
 	exprs.Mux.Lock()
 	exprs.Exprs = append(exprs.Exprs, lib.Expr{ID: len(exprs.Exprs), Oper: resp.Expression, Tasks: opers, Ans: 0, Status: 0})
+	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, `{"id": "%d"}`, len(exprs.Exprs)-1)
 	exprs.Mux.Unlock()
 }
