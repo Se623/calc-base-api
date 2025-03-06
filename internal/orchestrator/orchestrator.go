@@ -54,13 +54,16 @@ func Displayer(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 		}
+		exprs.Mux.Unlock()
 		if err != nil {
 			http.Error(w, "Error: Something invalid", http.StatusInternalServerError)
-			exprs.Mux.Unlock()
 			return
 		}
-		fmt.Fprint(w, string(exprPack))
-		exprs.Mux.Unlock()
+		if len(exprPack) == 0 {
+			http.Error(w, "Error: Expression not found", http.StatusNotFound)
+			return
+		}
+		fmt.Fprintf(w, `{"expression": "%s"}`, string(exprPack))
 	}
 }
 
@@ -77,7 +80,6 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 	err := decoder.Decode(&resp)
 
 	if err != nil {
-		fmt.Println(err)
 		http.Error(w, "Error: Invalid JSON", http.StatusInternalServerError)
 		return
 	}
