@@ -7,17 +7,18 @@ import (
 )
 
 // Константы
-var TIME_ADDITION_MS = 1000
-var TIME_SUBTRACTION_MS = 1000
-var TIME_MULTIPLICATIONS_MS = 1000
-var TIME_DIVISIONS_MS = 1000
-var TIME_REQUESTING_MS = 5000
-var COMPUTING_AGENTS = 2
-var COMPUTING_POWER = 2
+var TIME_ADDITION_MS = 1000        // Время выполнения сложения (мс)
+var TIME_SUBTRACTION_MS = 1000     // Время выполнения вычитания (мс)
+var TIME_MULTIPLICATIONS_MS = 1000 // Время выполнения умножения (мс)
+var TIME_DIVISIONS_MS = 1000       // Время выполнения сложения (мс)
+var TIME_REQUESTING_MS = 5000      // Время выполнения сложения (мс)
+var COMPUTING_AGENTS = 2           // Кол-во агентов
+var COMPUTING_POWER = 2            // Кол-во горутин агентов
 
 // Логгер
 var Sugar *zap.SugaredLogger
 
+// Запустить логгер
 func InitLogger() {
 	logger, _ := zap.NewProduction()
 	defer logger.Sync()
@@ -54,7 +55,7 @@ type DspArr struct {
 type Task struct {
 	ID             int     `json:"id"` // ID
 	ProbID         int     // Номер выражения действия
-	Links          [2]bool `json:"links"`
+	Links          [2]int  `json:"links"`
 	Arg1           float64 `json:"arg1"`           // Первое число
 	Arg2           float64 `json:"arg2"`           // Второе число
 	Operation      string  `json:"operation"`      // Операция

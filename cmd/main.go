@@ -22,6 +22,7 @@ func main() {
 	mux.HandleFunc("/api/v1/calculate", orchestrator.Spliter)
 	mux.HandleFunc("/internal/task", orchestrator.Distributor)
 	mux.HandleFunc("localhost/api/v1/expressions", orchestrator.Displayer)
+	lib.Sugar.Infof("Initilized orchestrator")
 
 	lib.Sugar.Infof("Initilized server on port 8080")
 

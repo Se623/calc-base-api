@@ -31,14 +31,19 @@ func Agent(id int) {
 				for i, v := range exprslot.Tasks {
 					if v.ID == resTask.ID {
 						exprslot.Tasks[i] = resTask
-						if i <= len(exprslot.Tasks)-2 && exprslot.Tasks[i+1].Links[0] {
-							exprslot.Tasks[i+1].Arg1 = exprslot.Tasks[i].Ans
-							exprslot.Tasks[i+1].Links[0] = false
-							lib.Sugar.Infof("Agent %d: Changed 1st link in task %d to number", id, exprslot.Tasks[i+1].ID)
-						} else if i <= len(exprslot.Tasks)-3 && exprslot.Tasks[i+1].Links[1] {
-							exprslot.Tasks[i+1].Arg2 = exprslot.Tasks[i].Ans
-							exprslot.Tasks[i+1].Links[1] = false
-							lib.Sugar.Infof("Agent %d: Changed 2nd link in task %d to number", id, exprslot.Tasks[i+1].ID)
+						for i2, v2 := range exprslot.Tasks {
+							if v2.Links[0] == exprslot.Tasks[i].ID {
+								exprslot.Tasks[i2].Arg1 = exprslot.Tasks[i].Ans
+								exprslot.Tasks[i2].Links[0] = -1
+								lib.Sugar.Infof("Agent %d: Changed 1st link in task %d to number", id, v2.ID)
+								break
+							}
+							if v2.Links[1] == exprslot.Tasks[i].ID {
+								exprslot.Tasks[i2].Arg2 = exprslot.Tasks[i].Ans
+								exprslot.Tasks[i2].Links[1] = -1
+								lib.Sugar.Infof("Agent %d: Changed 2nd link in task %d to number", id, v2.ID)
+								break
+							}
 						}
 						if i == len(exprslot.Tasks)-1 {
 							lib.Sugar.Infof("Agent %d: Task %d - last task, sending to orchestartor", id, exprslot.Tasks[i].ID)
@@ -50,12 +55,14 @@ func Agent(id int) {
 							}
 							busy = false
 						}
+						exprslot.Tasks = append(exprslot.Tasks[:i], exprslot.Tasks[i+1:]...)
+						continue
 					}
 				}
 			}
 		case <-ticker.C:
 			if !busy {
-				lib.Sugar.Infof("Agent %d: Trying to contact orchestrator for more expressions", id)
+				//lib.Sugar.Infof("Agent %d: Trying to contact orchestrator for more expressions", id)
 				resp, err := http.Get("http://localhost:8080/internal/task")
 				if err != nil {
 					lib.Sugar.Errorf("Agent %d: Something went wrong, aborting contact. Error: %s", id, err.Error())
@@ -73,13 +80,13 @@ func Agent(id int) {
 					exprslot = expr
 					busy = true
 				} else {
-					lib.Sugar.Infof("Agent %d: Orchestrator request unsuccessful, code: %d", id, resp.StatusCode)
+					//lib.Sugar.Infof("Agent %d: Orchestrator request unsuccessful, code: %d", id, resp.StatusCode)
 				}
 			}
 		default:
 			if busy {
 				for i, v := range exprslot.Tasks {
-					if v.Status == 0 && !v.Links[0] && !v.Links[1] {
+					if v.Status == 0 && v.Links[0] == -1 && v.Links[1] == -1 {
 						lib.Sugar.Infof("Agent %d: Got undestributed task %d, sending to calculators", id, v.ID)
 						calcsin <- exprslot.Tasks[i]
 						exprslot.Tasks[i].Status = 1

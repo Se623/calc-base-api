@@ -68,6 +68,7 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 	pr := []string{}
 	res := [][]string{}
 	opers := []lib.Task{}
+	linkctr := 0
 
 	rpnstack := lib.Newstack()
 
@@ -82,7 +83,6 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rpnarr, err := rpn.InfixToPostfix(resp.Expression)
-
 	if err != nil {
 		http.Error(w, "Error: Invalid Input", http.StatusUnprocessableEntity)
 		return
@@ -93,11 +93,18 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 		if _, err := strconv.ParseFloat(v, 64); err == nil {
 			rpnstack.Push(v)
 		} else {
-			pr = append(pr, rpnstack.Pop())
-			pr = append(pr, rpnstack.Pop())
+			rawo2 := rpnstack.Pop()
+			rawo1 := rpnstack.Pop()
+			if rawo1 == "" || rawo2 == "" {
+				http.Error(w, "Error: Invalid Input", http.StatusUnprocessableEntity)
+				return
+			}
+			pr = append(pr, rawo2)
+			pr = append(pr, rawo1)
 
 			pr = append(pr, v)
-			rpnstack.Push("L")
+			rpnstack.Push("L-" + fmt.Sprint(linkctr))
+			linkctr++
 
 			res = append(res, pr)
 			pr = []string{}
@@ -106,14 +113,14 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 
 	var num int
 
-	for i, v := range res {
+	for _, v := range res {
 		v[0], v[1] = v[1], v[0]
 
 		var a float64
 		var b float64
 
 		optime := 0
-		links := [2]bool{false, false}
+		links := [2]int{-1, -1}
 
 		if v[2] == "+" {
 			optime = lib.TIME_ADDITION_MS
@@ -125,22 +132,20 @@ func Spliter(w http.ResponseWriter, r *http.Request) {
 			optime = lib.TIME_DIVISIONS_MS
 		}
 
-		if v[0] == "L" {
-			links[0] = true
+		// 76 - числовое значение L
+		if v[0][0] == 76 {
+			links[0], _ = strconv.Atoi(v[0][2:])
 			a = -1
 		} else {
 			a, _ = strconv.ParseFloat(v[0], 64)
 		}
-		if v[1] == "L" {
-			links[1] = true
+		if v[1][0] == 76 {
+			links[1], _ = strconv.Atoi(v[1][2:])
 			b = -1
 		} else {
 			b, _ = strconv.ParseFloat(v[1], 64)
 		}
 
-		if i == len(res)-1 {
-			opers = append(opers, lib.Task{ID: num, ProbID: 0, Links: links, Arg1: a, Arg2: b, Operation: v[2], Operation_time: optime, Ans: 0, Status: 0})
-		}
 		opers = append(opers, lib.Task{ID: num, ProbID: 0, Links: links, Arg1: a, Arg2: b, Operation: v[2], Operation_time: optime, Ans: 0, Status: 0})
 		num++
 	}
