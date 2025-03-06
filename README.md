@@ -36,9 +36,16 @@ go run ./cmd
 Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data '{"expression": "2+2*2"}'`\
 Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"2+2*2\"}"`\
 
-Ответ: `{"id": "0"}`
+Ответ: `{"id": "0"}` (Ответ на выражение: 6)
 
-### Пример 1 (Ошибка)
+### Пример 2 (Сложное выражение)
+Запрос:\
+Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data '{"expression": "(6+8.2)*5.12-(5.971-8.3335)/5"}'`\
+Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"(6+8.2)*5.12-(5.971-8.3335)/5\"}"`
+
+Ответ: `{"id": "1"}` (Ответ на выражение: 73.17649999999999)
+
+### Пример 3 (Ошибка)
 Запрос:\
 Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data '{"expression": "***5***"}'`\
 Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"***5***\"}"`\
