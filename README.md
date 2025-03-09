@@ -57,8 +57,8 @@ Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: 
 
 ### Пример 4 (Ошибка c JSON)
 Запрос:\
-Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data '{"expression": "***5***"}'`\
-Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "{\"expression\": \"***5***\"}"`\
+Bash(Linux): `curl --location 'localhost:8080/api/v1/calculate' --header 'Content-Type: application/json' --data 'asdfg'`\
+Cmd: `curl --location "localhost:8080/api/v1/calculate" --header "Content-Type: application/json" --data "asdfg"`\
 
 Ответ: `Error: Invalid JSON` (Выражение не покажется в списке)
 
